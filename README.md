@@ -144,13 +144,23 @@ occasions({
 })
 ```
 
-## Target element
+## Element
 
-To tag an element other than `<body>`, pass it as `target`:
+To tag an element other than `<body>`, pass its ID as `element`:
 
 ```
-occasions({ target: document.querySelector("#app") })
+occasions({ element: "app" })
 ```
+
+This tags `<div id="app">` instead of `<body>`. A leading `#` is optional. If the element isn’t in the page yet, tagging waits until the page has loaded. If no element has that ID, a warning is logged and nothing is tagged.
+
+If you already have a reference to the element, pass it as `target` instead:
+
+```
+occasions({ target: document.querySelector(".site-header") })
+```
+
+`target` takes priority over `element` if both are given.
 
 # Extras
 

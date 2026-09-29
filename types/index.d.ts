@@ -5,7 +5,9 @@ export interface OccasionsOptions {
   date?: string
   /** Log all available occasions to the console. */
   log?: boolean
-  /** Element to tag. Defaults to document.body. */
+  /** ID of the element to tag, e.g. "app" or "#app". Defaults to document.body. */
+  element?: string
+  /** Element to tag. Takes priority over `element`. Defaults to document.body. */
   target?: HTMLElement
   /** Called with the occasion name when one is found. */
   onOccasion?: (occasion: string) => void
@@ -15,6 +17,6 @@ export interface OccasionsOptions {
 export declare function occasions(options?: OccasionsOptions): string | undefined
 
 /** Returns today's occasion name, if any, without touching the DOM. */
-export declare function getOccasion(options?: Omit<OccasionsOptions, "target" | "onOccasion" | "log">): string | undefined
+export declare function getOccasion(options?: Omit<OccasionsOptions, "element" | "target" | "onOccasion" | "log">): string | undefined
 
 export default occasions

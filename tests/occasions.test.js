@@ -51,7 +51,7 @@ describe("with a DOM", () => {
 
   test("waits for DOMContentLoaded when there is no body yet", () => {
     let ready;
-    const doc = { body: null, addEventListener: vi.fn((event, callback) => { ready = callback }) };
+    const doc = { body: null, readyState: "loading", addEventListener: vi.fn((event, callback) => { ready = callback }) };
     vi.stubGlobal("document", doc);
     const onOccasion = vi.fn();
     expect(occasions({ date: "May 04", onOccasion })).toEqual("star-wars");
@@ -61,6 +61,58 @@ describe("with a DOM", () => {
     ready();
     expect(doc.body.dataset.occasion).toEqual("star-wars");
     expect(onOccasion).toHaveBeenCalledWith("star-wars");
+  })
+
+  test("tags the element with the given ID", () => {
+    const body = fakeElement();
+    const app = fakeElement();
+    const getElementById = vi.fn((id) => id === "app" ? app : null);
+    vi.stubGlobal("document", { body, getElementById });
+    occasions({ date: "May 04", element: "app" });
+    expect(app.dataset.occasion).toEqual("star-wars");
+    expect(body.dataset.occasion).toBeUndefined();
+    occasions({ date: "Mar 14", element: "#app" });
+    expect(getElementById).toHaveBeenLastCalledWith("app");
+    expect(app.classList.add).toHaveBeenLastCalledWith("pi");
+  })
+
+  test("target takes priority over element", () => {
+    const target = fakeElement();
+    const getElementById = vi.fn();
+    vi.stubGlobal("document", { body: fakeElement(), getElementById });
+    occasions({ date: "May 04", element: "app", target });
+    expect(target.dataset.occasion).toEqual("star-wars");
+    expect(getElementById).not.toHaveBeenCalled();
+  })
+
+  test("waits for DOMContentLoaded when the element isn't parsed yet", () => {
+    let ready;
+    let app = null;
+    const doc = {
+      body: fakeElement(),
+      readyState: "loading",
+      getElementById: () => app,
+      addEventListener: vi.fn((event, callback) => { ready = callback })
+    };
+    vi.stubGlobal("document", doc);
+    occasions({ date: "May 04", element: "app" });
+    expect(doc.addEventListener).toHaveBeenCalledWith("DOMContentLoaded", expect.any(Function), { once: true });
+    app = fakeElement();
+    ready();
+    expect(app.dataset.occasion).toEqual("star-wars");
+    expect(doc.body.dataset.occasion).toBeUndefined();
+  })
+
+  test("warns when no element has the given ID", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const body = fakeElement();
+    const onOccasion = vi.fn();
+    vi.stubGlobal("document", { body, readyState: "complete", getElementById: () => null });
+    expect(occasions({ date: "May 04", element: "missing", onOccasion })).toEqual("star-wars");
+    expect(warn).toHaveBeenCalledWith('[occasions] no element found with id "missing".');
+    expect(body.classList.add).not.toHaveBeenCalled();
+    expect(onOccasion).toHaveBeenCalledWith("star-wars");
+    warn.mockRestore();
   })
 })
 

@@ -36,7 +36,7 @@ const getOccasion = (options = {}) => {
   return resolveOccasions(options.occasions, date)[date]
 }
 
-// finds today's occasion and tags the target element (document.body by default)
+// finds today's occasion and tags the target element (document.body by default, or the element with the given ID)
 const occasions = (options = {}) => {
   const date = resolveDate(options)
   const available = resolveOccasions(options.occasions, date)
@@ -59,11 +59,22 @@ const occasions = (options = {}) => {
   } else if (typeof document === "undefined") {
     // no DOM (e.g. server-side rendering): nothing to tag
     apply(null)
-  } else if (document.body) {
-    apply(document.body)
   } else {
-    // script loaded in <head>: wait for <body>
-    document.addEventListener("DOMContentLoaded", () => apply(document.body), { once: true })
+    // element option is an ID ("app" or "#app"); defaults to <body>
+    const findElement = () => options.element
+      ? document.getElementById(options.element.replace(/^#/, ""))
+      : document.body
+    const applyToElement = () => {
+      const target = findElement()
+      if (!target) console.warn(`${consolePre} no element found with id "${options.element}".`)
+      apply(target)
+    }
+    if (findElement() || document.readyState !== "loading") {
+      applyToElement()
+    } else {
+      // script loaded before the element: wait for the DOM
+      document.addEventListener("DOMContentLoaded", applyToElement, { once: true })
+    }
   }
 
   return occasion
