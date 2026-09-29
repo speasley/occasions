@@ -2,7 +2,7 @@
   "name": "occasions",
   "description": "Tags your HTML’s body element with a class and data attribute reflecting today’s occasion or holiday. Framework-agnostic.",
   "private": false,
-  "version": "3.0.0",
+  "version": "4.0.0",
   "keywords": [
     "dates",
     "holidays",

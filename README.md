@@ -16,7 +16,6 @@ Works anywhere: plain JavaScript, a `<script>` tag, or any framework, including 
 * [Extras](#extras)
 * [Examples](#examples)
 * [Notes](#notes)
-* [Migrating from 2.x](#migrating-from-2x)
 * [Migrating from vue-occasions](#migrating-from-vue-occasions)
 * [Development](#development)
 * [Changelog](#changelog)
@@ -449,37 +448,6 @@ Everything is case-insensitive: months, weekdays and special-date function names
 
 Days may be written with or without a leading zero. Eg: `May 4` and `May 04` are equivalent.
 
-# Migrating from 2.x
-
-Version 3 has three breaking changes.
-
-**The built-in occasions are now opt-in.** Calling `occasions()` without an `occasions` option no longer tags anything. To keep the previous behaviour, pass the presets:
-
-```
-import presets from "occasions/presets"
-
-occasions({ occasions: presets })
-```
-
-Your own occasions previously overrode built-in ones on the same date. To keep that, spread presets first:
-
-```
-occasions({ occasions: { ...presets, "Feb 27":"birthday" } })
-```
-
-**Classes are now prefixed with `occasion-`.** `<body class="star-wars">` is now `<body class="occasion-star-wars">`. Either update your CSS selectors (`.star-wars` → `.occasion-star-wars`) or keep the old class names with `prefix: ""`. The `data-occasion` attribute is unchanged.
-
-**The Vue plugin (`occasions/vue`) has been removed.** Call `occasions()` directly instead. See [Vue](#vue):
-
-```
-- import Occasions from "occasions/vue"
-+ import occasions from "occasions"
-
-- createApp(App).use(Occasions, options).mount("#app")
-+ createApp(App).mount("#app")
-+ occasions(options)
-```
-
 # Migrating from vue-occasions
 
 `vue-occasions` is now `occasions`. To upgrade a Vue app:
@@ -557,25 +525,23 @@ This outputs the ESM, CommonJS and `<script>` tag builds to `dist/`.
 
 * Add `log` option to log available occasions to console
 
-## Sep 29, 2026 v2.0.0
+## Sep 29, 2026 v4.0.0
 
-* Renamed from `vue-occasions` to `occasions`
-* Framework-agnostic core: `occasions()` and `getOccasion()`
-* Vue plugin moved to `occasions/vue`
-* ESM, CommonJS and `<script>` tag builds, plus TypeScript types
-* New `target` option; `onOccasion` receives the occasion name
-* Works without options and without a DOM (SSR)
-* No longer depends on Vue
+Renamed from `vue-occasions` to `occasions` and rebuilt as a framework-agnostic library. Versions 2.0.0 and 3.0.0 were short-lived steps in this port, and their changes are included here.
 
-## Sep 29, 2026 v3.0.0
-
+* **Breaking:** no Vue plugin. Call `occasions()` directly in any framework, including Vue
 * **Breaking:** built-in occasions are no longer included by default. Import them from `occasions/presets`
 * **Breaking:** classes are prefixed with `occasion-` by default. New `prefix` option to change or remove it
-* **Breaking:** removed the Vue plugin (`occasions/vue`). Call `occasions()` directly in any framework
+* **Breaking:** special date functions no longer take a leading underscore, e.g. `nthDay(1,Mon,Feb)`
+* **Breaking:** `onOccasion` receives the occasion name as its argument
+* New `getOccasion()` to read the current occasion without touching the DOM
+* New `element` (by ID) and `target` (by reference) options to tag an element other than `<body>`
+* Dates no longer need a leading zero: `May 4` and `May 04` are equivalent
+* Months, weekdays and special date function names are case-insensitive
+* ESM, CommonJS and `<script>` tag builds, plus TypeScript types. The script tag build exposes presets as `occasions.presets`
+* Works without options and without a DOM (SSR)
+* No longer depends on Vue
 * New Frameworks section in the docs with examples for Vue, Nuxt, React, Next.js, Svelte, Angular and Astro
-* New `element` option to tag an element by ID instead of `<body>`
-* Script tag build exposes presets as `occasions.presets`
-* Smaller core bundle
 
 # License
 
