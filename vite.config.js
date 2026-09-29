@@ -21,8 +21,7 @@ export default defineConfig(({ mode }) => ({
         lib: {
           entry: {
             occasions: path.resolve(__dirname, './src/index.js'),
-            presets: path.resolve(__dirname, './src/presets.js'),
-            vue: path.resolve(__dirname, './src/vue.js')
+            presets: path.resolve(__dirname, './src/presets.js')
           },
           formats: ['es', 'cjs'],
           fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'js' : 'cjs'}`

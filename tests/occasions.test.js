@@ -1,6 +1,5 @@
 import { describe, test, expect, vi, afterEach } from "vitest";
 import occasions, { getOccasion } from "../src/index";
-import Occasions from "../src/vue";
 import browser from "../src/browser";
 import presets from "../src/presets";
 import occasionsData from "../src/occasions.json";
@@ -31,12 +30,6 @@ test("occasions tags the target and calls onOccasion", () => {
 test("occasions without a DOM or options", () => {
   expect(() => occasions()).not.toThrow();
   expect(occasions({ occasions: presets, date: "Mar 14" })).toEqual("pi");
-})
-
-test("vue plugin", () => {
-  const target = fakeElement();
-  Occasions.install({}, { occasions: presets, date: "Mar 14", target });
-  expect(target.dataset.occasion).toEqual("pi");
 })
 
 describe("with a DOM", () => {

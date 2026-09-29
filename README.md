@@ -2,7 +2,7 @@
 
 Tags your HTML’s body element with a class and data attribute reflecting today’s occasion or holiday. You can then style that element with CSS or implement some JavaScript behaviour. For example, you could show special versions of your site’s logo on different holidays or trigger a holiday-specific modal.
 
-Works anywhere: plain JavaScript, a `<script>` tag, React, Svelte, Astro, or any other framework. A Vue plugin is included.
+Works anywhere: plain JavaScript, a `<script>` tag, or any framework, including Vue, React, Svelte, Angular and Astro.
 
 [![Version](https://img.shields.io/npm/v/occasions?style=flat-square)](https://www.npmjs.com/package/occasions)
 [![MIT License](https://img.shields.io/packagist/l/doctrine/orm.svg?style=flat-square)](https://www.npmjs.com/package/occasions)
@@ -11,6 +11,7 @@ Works anywhere: plain JavaScript, a `<script>` tag, React, Svelte, Astro, or any
 # Table of Contents
 * [Installation](#installation)
 * [Usage](#usage)
+* [Frameworks](#frameworks)
 * [Options](#options)
 * [Extras](#extras)
 * [Examples](#examples)
@@ -52,7 +53,7 @@ occasions({
 })
 ```
 
-Call it once when your app starts, for example in your entry file, a React `useEffect`, or Svelte’s `onMount`.
+Call it once when your page loads. See [Frameworks](#frameworks) for where that goes in Vue, React, Next.js and others.
 
 On May the 4th, this will result in:
 
@@ -99,19 +100,6 @@ To see what’s included, browse [`src/occasions.json`](src/occasions.json) or u
 
 The script tag build includes the presets as `occasions.presets`. If the script runs in `<head>`, tagging waits until `<body>` is available.
 
-## Vue
-
-```
-import Occasions from "occasions/vue"
-import presets from "occasions/presets"
-
-createApp(App)
-  .use(Occasions, { occasions: presets })
-  .mount("#app")
-```
-
-The Vue plugin accepts all the same options as a second argument to `.use()`.
-
 ## CommonJS
 
 ```
@@ -129,6 +117,147 @@ const occasion = getOccasion({ occasions: presets }) // e.g. "star-wars" or unde
 ```
 
 `getOccasion` accepts the `occasions` and `date` options.
+
+# Frameworks
+
+`occasions()` works the same way in every framework: call it once, in the browser, after your app has started. No plugin or wrapper is needed. The examples below show where that call goes. They all use presets, but any [options](#options) work.
+
+## Vue
+
+```
+// main.js
+import { createApp } from "vue"
+import occasions from "occasions"
+import presets from "occasions/presets"
+import App from "./App.vue"
+
+createApp(App).mount("#app")
+occasions({ occasions: presets })
+```
+
+## Nuxt
+
+Use a client-only plugin (note the `.client` in the file name) so it runs in the browser:
+
+```
+// plugins/occasions.client.js
+import occasions from "occasions"
+import presets from "occasions/presets"
+
+export default defineNuxtPlugin(() => {
+  occasions({ occasions: presets })
+})
+```
+
+## React
+
+```
+// App.jsx
+import { useEffect } from "react"
+import occasions from "occasions"
+import presets from "occasions/presets"
+
+export default function App() {
+  useEffect(() => {
+    occasions({ occasions: presets })
+  }, [])
+
+  // ...
+}
+```
+
+In development, React’s Strict Mode runs effects twice, so `onOccasion` fires twice. This doesn’t happen in production.
+
+## Next.js
+
+Effects only run in client components, so put the call in a small component marked `"use client"`:
+
+```
+// app/Occasions.jsx
+"use client"
+import { useEffect } from "react"
+import occasions from "occasions"
+import presets from "occasions/presets"
+
+export default function Occasions() {
+  useEffect(() => {
+    occasions({ occasions: presets })
+  }, [])
+  return null
+}
+```
+
+Then render it in your root layout:
+
+```
+// app/layout.jsx
+import Occasions from "./Occasions"
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <Occasions />
+        {children}
+      </body>
+    </html>
+  )
+}
+```
+
+## Svelte and SvelteKit
+
+```
+<!-- App.svelte, or src/routes/+layout.svelte in SvelteKit -->
+<script>
+  import { onMount } from "svelte"
+  import occasions from "occasions"
+  import presets from "occasions/presets"
+
+  onMount(() => {
+    occasions({ occasions: presets })
+  })
+</script>
+```
+
+## Angular
+
+```
+// main.ts
+import { bootstrapApplication } from "@angular/platform-browser"
+import occasions from "occasions"
+import presets from "occasions/presets"
+import { AppComponent } from "./app/app.component"
+
+bootstrapApplication(AppComponent).then(() => {
+  occasions({ occasions: presets })
+})
+```
+
+## Astro
+
+Astro bundles `<script>` tags and runs them in the browser, so add one to your layout:
+
+```
+<!-- src/layouts/Layout.astro -->
+<html lang="en">
+  <body>
+    <slot />
+    <script>
+      import occasions from "occasions"
+      import presets from "occasions/presets"
+
+      occasions({ occasions: presets })
+    </script>
+  </body>
+</html>
+```
+
+## Server-side rendering
+
+In frameworks that render on the server (Nuxt, Next.js, SvelteKit, Astro), the examples above run in the browser, so the occasion is based on the visitor’s own date. The class is added once the page loads, so occasion styles appear a moment after the page first shows. Calling `occasions()` on the server is harmless; it finds the occasion but has nothing to tag.
+
+To add the class during server rendering instead, use [`getOccasion()`](#without-the-dom) and put the result on `<body>` yourself. Keep in mind that this uses the server’s date and timezone, and a cached or statically built page keeps the occasion from when it was built.
 
 # Options
 
@@ -320,7 +449,7 @@ Days must be two digits, so some need leading zeroes. Eg: `08`, `09`, `10`, `11`
 
 # Migrating from 2.x
 
-Version 3 has two breaking changes.
+Version 3 has three breaking changes.
 
 **The built-in occasions are now opt-in.** Calling `occasions()` without an `occasions` option no longer tags anything. To keep the previous behaviour, pass the presets:
 
@@ -338,6 +467,17 @@ occasions({ occasions: { ...presets, "Feb 27":"birthday" } })
 
 **Classes are now prefixed with `occasion-`.** `<body class="star-wars">` is now `<body class="occasion-star-wars">`. Either update your CSS selectors (`.star-wars` → `.occasion-star-wars`) or keep the old class names with `prefix: ""`. The `data-occasion` attribute is unchanged.
 
+**The Vue plugin (`occasions/vue`) has been removed.** Call `occasions()` directly instead. See [Vue](#vue):
+
+```
+- import Occasions from "occasions/vue"
++ import occasions from "occasions"
+
+- createApp(App).use(Occasions, options).mount("#app")
++ createApp(App).mount("#app")
++ occasions(options)
+```
+
 # Migrating from vue-occasions
 
 `vue-occasions` is now `occasions`. To upgrade a Vue app:
@@ -347,18 +487,19 @@ npm uninstall vue-occasions
 npm install occasions
 ```
 
+`occasions` doesn’t need a Vue plugin. Call it after mounting your app instead:
+
 ```
 - import VueOccasions from "vue-occasions"
-+ import Occasions from "occasions/vue"
++ import occasions from "occasions"
 + import presets from "occasions/presets"
 
-  createApp(App)
--   .use(VueOccasions)
-+   .use(Occasions, { occasions: presets })
-    .mount("#app")
+- createApp(App).use(VueOccasions).mount("#app")
++ createApp(App).mount("#app")
++ occasions({ occasions: presets })
 ```
 
-Also note:
+The options are the same, with these differences:
 
 * Custom occasions: spread them after the presets, e.g. `{ occasions: { ...presets, "Feb 27":"birthday" } }`.
 * Classes are prefixed with `occasion-`. Update your CSS or pass `prefix: ""` to keep the old class names.
@@ -427,6 +568,8 @@ This outputs the ESM, CommonJS and `<script>` tag builds to `dist/`.
 
 * **Breaking:** built-in occasions are no longer included by default. Import them from `occasions/presets`
 * **Breaking:** classes are prefixed with `occasion-` by default. New `prefix` option to change or remove it
+* **Breaking:** removed the Vue plugin (`occasions/vue`). Call `occasions()` directly in any framework
+* New Frameworks section in the docs with examples for Vue, Nuxt, React, Next.js, Svelte, Angular and Astro
 * New `element` option to tag an element by ID instead of `<body>`
 * Script tag build exposes presets as `occasions.presets`
 * Smaller core bundle

@@ -1,6 +1,6 @@
 {
   "name": "occasions",
-  "description": "Tags your HTML’s body element with a class and data attribute reflecting today’s occasion or holiday. Framework-agnostic, with an optional Vue plugin.",
+  "description": "Tags your HTML’s body element with a class and data attribute reflecting today’s occasion or holiday. Framework-agnostic.",
   "private": false,
   "version": "3.0.0",
   "keywords": [
@@ -22,11 +22,6 @@
       "types": "./types/index.d.ts",
       "import": "./dist/occasions.js",
       "require": "./dist/occasions.cjs"
-    },
-    "./vue": {
-      "types": "./types/vue.d.ts",
-      "import": "./dist/vue.js",
-      "require": "./dist/vue.cjs"
     },
     "./presets": {
       "types": "./types/presets.d.ts",
