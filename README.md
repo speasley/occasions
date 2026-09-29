@@ -15,6 +15,7 @@ Works anywhere: plain JavaScript, a `<script>` tag, React, Svelte, Astro, or any
 * [Extras](#extras)
 * [Examples](#examples)
 * [Notes](#notes)
+* [Migrating from 2.x](#migrating-from-2x)
 * [Migrating from vue-occasions](#migrating-from-vue-occasions)
 * [Development](#development)
 * [Changelog](#changelog)
@@ -43,7 +44,12 @@ Works anywhere: plain JavaScript, a `<script>` tag, React, Svelte, Astro, or any
 ```
 import occasions from "occasions"
 
-occasions()
+occasions({
+  occasions: {
+    "May 04":"star-wars",
+    "Oct 31":"halloween"
+  }
+})
 ```
 
 Call it once when your app starts, for example in your entry file, a React `useEffect`, or Svelte’s `onMount`.
@@ -51,31 +57,56 @@ Call it once when your app starts, for example in your entry file, a React `useE
 On May the 4th, this will result in:
 
 ```
-<body class="star-wars" data-occasion="star-wars">
+<body class="occasion-star-wars" data-occasion="star-wars">
 ```
 
 Now you can leverage CSS and JavaScript as you wish in celebration of Star Wars Day.
 
 `occasions()` also returns the occasion name (or `undefined`).
 
+## Presets
+
+A list of about 70 ready-made occasions (holidays, awareness days and geeky celebrations) is available as presets. Presets aren’t included unless you import them, which keeps the core package small.
+
+```
+import occasions from "occasions"
+import presets from "occasions/presets"
+
+occasions({ occasions: presets })
+```
+
+Mix presets with your own occasions. Later keys win, so your occasions override presets on the same date:
+
+```
+occasions({
+  occasions: {
+    ...presets,
+    "Feb 27":"birthday"
+  }
+})
+```
+
+To see what’s included, browse [`src/occasions.json`](src/occasions.json) or use the [`log`](#log-occasions) option. You can also copy just the entries you want into your own list.
+
 ## Script tag
 
 ```
 <script src="https://unpkg.com/occasions"></script>
 <script>
-  occasions()
+  occasions({ occasions: occasions.presets })
 </script>
 ```
 
-If the script runs in `<head>`, tagging waits until `<body>` is available.
+The script tag build includes the presets as `occasions.presets`. If the script runs in `<head>`, tagging waits until `<body>` is available.
 
 ## Vue
 
 ```
 import Occasions from "occasions/vue"
+import presets from "occasions/presets"
 
 createApp(App)
-  .use(Occasions)
+  .use(Occasions, { occasions: presets })
   .mount("#app")
 ```
 
@@ -94,16 +125,16 @@ To get today’s occasion without tagging anything, for example during server-si
 ```
 import { getOccasion } from "occasions"
 
-const occasion = getOccasion() // e.g. "star-wars" or undefined
+const occasion = getOccasion({ occasions: presets }) // e.g. "star-wars" or undefined
 ```
 
 `getOccasion` accepts the `occasions` and `date` options.
 
 # Options
 
-## Custom occasions
+## Occasions
 
-You can add your own occasions by supplying a JSON object during initialization:
+The occasions to look for, keyed by date:
 ```
 occasions({
   occasions: {
@@ -112,14 +143,14 @@ occasions({
 })
 ```
 
-Note: if an occasion already exists for the date you provide, your custom occasion will be given priority.
+Dates can also be [special dates](#special-dates) like “the last Monday of May”. See [Presets](#presets) for a ready-made list.
 
 ## Date
 
 To simulate an occasion without having to time travel, pass in a relevant date with your initialization:
 
 ```
-occasions({ date: "Apr 01" })
+occasions({ occasions: presets, date: "Apr 01" })
 ```
 
 This is intended for testing purposes only. Be sure to remove the date override once you have completed testing.
@@ -129,7 +160,7 @@ This is intended for testing purposes only. Be sure to remove the date override 
 To log all available occasions to the console, provide the `log` option:
 
 ```
-occasions({ log: true })
+occasions({ occasions: presets, log: true })
 ```
 
 ## onOccasion callback
@@ -161,6 +192,18 @@ occasions({ target: document.querySelector(".site-header") })
 ```
 
 `target` takes priority over `element` if both are given.
+
+## Class prefix
+
+The class added to the element is prefixed with `occasion-` so it won’t collide with class names already used in your site’s CSS. For example, the `star-wars` occasion adds the class `occasion-star-wars`. To use a different prefix, pass `prefix`:
+
+```
+occasions({ occasions: presets, prefix: "holiday-" })
+```
+
+This results in `<body class="holiday-star-wars" data-occasion="star-wars">`. Pass `prefix: ""` for no prefix.
+
+The prefix only applies to the class. The `data-occasion` attribute, the return value and `onOccasion` always use the plain occasion name.
 
 # Extras
 
@@ -213,6 +256,7 @@ document.querySelector("body").getAttribute("data-occasion")
 Let’s trigger a JavaScript alert when simulating May 4th:
 ```
 occasions({
+  occasions: presets,
   date: "May 04",
   onOccasion: (occasion) => {
     if (occasion === "star-wars") {
@@ -247,7 +291,7 @@ In their CSS, they have:
 #meeting-tonight {
   display: none;
 }
-body.book-club-meeting #meeting-tonight {
+body.occasion-book-club-meeting #meeting-tonight {
   display: block;
 }
 ```
@@ -256,13 +300,43 @@ body.book-club-meeting #meeting-tonight {
 
 ## Occasion name format
 
-Since occasion names are used for CSS classes, they must follow the [syntax rules](https://developer.mozilla.org/en-US/docs/Web/CSS/Class_selectors). The occasions provided (`occasions.json`) use hyphenated names.
+Since occasion names are used for CSS classes, they must follow the [syntax rules](https://developer.mozilla.org/en-US/docs/Web/CSS/Class_selectors). The same goes for a custom [prefix](#class-prefix). The presets use hyphenated names.
+
+## Styling with the data attribute
+
+Instead of the class, you can target the `data-occasion` attribute, which never needs a prefix:
+
+```
+body[data-occasion="star-wars"] .logo {
+  background-image: url("logo-star-wars.svg");
+}
+```
 
 ## Date format
 
 Names of months and weekdays must be their first three letters, title cased. Eg: `Jan`, `Feb`, `Mon` and `Tue`.
 
 Days must be two digits, so some need leading zeroes. Eg: `08`, `09`, `10`, `11`, etc.
+
+# Migrating from 2.x
+
+Version 3 has two breaking changes.
+
+**The built-in occasions are now opt-in.** Calling `occasions()` without an `occasions` option no longer tags anything. To keep the previous behaviour, pass the presets:
+
+```
+import presets from "occasions/presets"
+
+occasions({ occasions: presets })
+```
+
+Your own occasions previously overrode built-in ones on the same date. To keep that, spread presets first:
+
+```
+occasions({ occasions: { ...presets, "Feb 27":"birthday" } })
+```
+
+**Classes are now prefixed with `occasion-`.** `<body class="star-wars">` is now `<body class="occasion-star-wars">`. Either update your CSS selectors (`.star-wars` → `.occasion-star-wars`) or keep the old class names with `prefix: ""`. The `data-occasion` attribute is unchanged.
 
 # Migrating from vue-occasions
 
@@ -276,9 +350,19 @@ npm install occasions
 ```
 - import VueOccasions from "vue-occasions"
 + import Occasions from "occasions/vue"
++ import presets from "occasions/presets"
+
+  createApp(App)
+-   .use(VueOccasions)
++   .use(Occasions, { occasions: presets })
+    .mount("#app")
 ```
 
-Options are unchanged. `onOccasion` now receives the occasion name as its argument.
+Also note:
+
+* Custom occasions: spread them after the presets, e.g. `{ occasions: { ...presets, "Feb 27":"birthday" } }`.
+* Classes are prefixed with `occasion-`. Update your CSS or pass `prefix: ""` to keep the old class names.
+* `onOccasion` now receives the occasion name as its argument.
 
 # Development
 
@@ -338,6 +422,14 @@ This outputs the ESM, CommonJS and `<script>` tag builds to `dist/`.
 * New `target` option; `onOccasion` receives the occasion name
 * Works without options and without a DOM (SSR)
 * No longer depends on Vue
+
+## Sep 29, 2026 v3.0.0
+
+* **Breaking:** built-in occasions are no longer included by default. Import them from `occasions/presets`
+* **Breaking:** classes are prefixed with `occasion-` by default. New `prefix` option to change or remove it
+* New `element` option to tag an element by ID instead of `<body>`
+* Script tag build exposes presets as `occasions.presets`
+* Smaller core bundle
 
 # License
 

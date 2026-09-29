@@ -1,14 +1,14 @@
 import * as core from "./core/index"
-import occasionsData from "./occasions.json"
 
 const consolePre = "[occasions]"
+const defaultPrefix = "occasion-"
 
 // use options-supplied date, or today's date
 const resolveDate = (options) => options.date ? core.todaysDate(options.date).slice(0, 6) : core.todaysDate()
 
-// merge any user-supplied occasions and resolve special dates for the given date
+// copy user-supplied occasions and resolve special dates for the given date
 const resolveOccasions = (userOccasions = {}, date) => {
-  let occasions = core.mergeHashes({ ...occasionsData }, userOccasions)
+  let occasions = core.mergeHashes({}, userOccasions)
   Object.keys(occasions).forEach(key => {
     if (key.slice(0, 1) === "_") {
       // replace key with special-date result
@@ -25,8 +25,8 @@ const logOccasions = (occasions) => {
   console.groupEnd()
 }
 
-const tag = (target, occasion) => {
-  target.classList.add(occasion)
+const tag = (target, occasion, prefix) => {
+  target.classList.add(`${prefix}${occasion}`)
   target.dataset.occasion = occasion
 }
 
@@ -40,6 +40,9 @@ const getOccasion = (options = {}) => {
 const occasions = (options = {}) => {
   const date = resolveDate(options)
   const available = resolveOccasions(options.occasions, date)
+  if (Object.keys(available).length === 0) {
+    console.debug(`${consolePre} no occasions provided. Pass your own with the "occasions" option, or import the built-in list from "occasions/presets".`)
+  }
   if (options.log) logOccasions(available)
 
   const occasion = available[date]
@@ -50,7 +53,7 @@ const occasions = (options = {}) => {
   console.debug(`${consolePre} "${occasion}" occasion found.`)
 
   const apply = (target) => {
-    if (target) tag(target, occasion)
+    if (target) tag(target, occasion, options.prefix ?? defaultPrefix)
     if (options.onOccasion) options.onOccasion(occasion)
   }
 
