@@ -1,5 +1,5 @@
 export interface OccasionsOptions {
-  /** Occasions keyed by date, e.g. { "Feb 27": "birthday", "_lastWeekday(Fri,May)": "book-club" }. Import "occasions/presets" for a built-in list. */
+  /** Occasions keyed by date, e.g. { "Feb 27": "birthday", "lastWeekday(Fri,May)": "book-club" }. Import "occasions/presets" for a built-in list. */
   occasions?: Record<string, string>
   /** Simulate a date, e.g. "Apr 01". For testing only. */
   date?: string

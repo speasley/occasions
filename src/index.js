@@ -3,17 +3,20 @@ import * as core from "./core/index"
 const consolePre = "[occasions]"
 const defaultPrefix = "occasion-"
 
+// title-case the month and pad single-digit days so "sep 4", "Sep 4" and "Sep 04" all match the internal "Mmm DD" format
+const normalizeDate = (date) => date
+  .replace(/^([a-z]{3}) (\d{1,2})(?!\d)/i, (_, month, day) => `${month[0].toUpperCase()}${month.slice(1).toLowerCase()} ${day.padStart(2, "0")}`)
+  .slice(0, 6)
+
 // use options-supplied date, or today's date
-const resolveDate = (options) => options.date ? core.todaysDate(options.date).slice(0, 6) : core.todaysDate()
+const resolveDate = (options) => options.date ? normalizeDate(options.date) : core.todaysDate()
 
 // copy user-supplied occasions and resolve special dates for the given date
 const resolveOccasions = (userOccasions = {}, date) => {
   let occasions = core.mergeHashes({}, userOccasions)
   Object.keys(occasions).forEach(key => {
-    if (key.slice(0, 1) === "_") {
-      // replace key with special-date result
-      occasions = core.renameKey(occasions, key, core.specialDate(key, date))
-    }
+    // replace key with special-date result, or normalize a plain date
+    occasions = core.renameKey(occasions, key, core.specialDate(key, date) ?? normalizeDate(key))
   })
   return occasions
 }

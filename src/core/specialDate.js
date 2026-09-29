@@ -1,26 +1,21 @@
 import { nthDay } from "./nthDay"
 import { lastWeekday, weekdayAfter, weekdayBefore } from "./weekday"
 
+// function names are case-insensitive
+const specialDates = {
+  nthday: nthDay,
+  weekdayafter: weekdayAfter,
+  weekdaybefore: weekdayBefore,
+  lastweekday: lastWeekday,
+};
+
+// returns the resolved date, or undefined if the key isn't a special date
 const specialDate = (date, override) => {
 
-  let params;
-  let new_date;
+  const match = date.match(/^(\w+)\((.*)\)$/);
+  const fn = match && specialDates[match[1].toLowerCase()];
 
-  if (date.startsWith("_nthDay")) {
-    params = date.substring(8, date.length - 1);
-    new_date = nthDay(params, override);
-  } else if (date.startsWith("_weekdayAfter")) {
-    params = date.substring(14, date.length - 1);
-    new_date = weekdayAfter(params, override);
-  } else if (date.startsWith("_weekdayBefore")) {
-    params = date.substring(15, date.length - 1);
-    new_date = weekdayBefore(params, override);
-  } else if (date.startsWith("_lastWeekday")) {
-    params = date.substring(13, date.length - 1);
-    new_date = lastWeekday(params, override);
-  }
-
-  return new_date;
+  return fn ? fn(match[2], override) : undefined;
 };
 
 export { specialDate }

@@ -343,28 +343,28 @@ Four special date functions are available: `nthDay()`, `lastWeekday()`, `weekday
 The first Monday of February:
 ```
 {
-  "_nthDay(1,Mon,Feb)":"happy-day"
+  "nthDay(1,Mon,Feb)":"happy-day"
 }
 ```
 
 The last Monday of May:
 ```
 {
-  "_lastWeekday(Mon,May)":"memorial"
+  "lastWeekday(Mon,May)":"memorial"
 }
 ```
 
 The Tuesday after June 14:
 ```
 {
-  "_weekdayAfter(Tue,Jun,14)":"knitting-group"
+  "weekdayAfter(Tue,Jun,14)":"knitting-group"
 }
 ```
 
 The Tuesday before February 27:
 ```
 {
-  "_weekdayBefore(Tue,Feb,27)":"slappy-day"
+  "weekdayBefore(Tue,Feb,27)":"slappy-day"
 }
 ```
 
@@ -386,7 +386,7 @@ Let’s trigger a JavaScript alert when simulating May 4th:
 ```
 occasions({
   occasions: presets,
-  date: "May 04",
+  date: "May 4",
   onOccasion: (occasion) => {
     if (occasion === "star-wars") {
       alert("May the Fourth be with you.")
@@ -404,12 +404,12 @@ Their initialization looks like this:
 ```
 occasions({
   occasions: {
-    "_lastWeekday(Fri,Jan)":"book-club-meeting",
-    "_lastWeekday(Fri,Mar)":"book-club-meeting",
-    "_lastWeekday(Fri,May)":"book-club-meeting",
-    "_lastWeekday(Fri,Jul)":"book-club-meeting",
-    "_lastWeekday(Fri,Sep)":"book-club-meeting",
-    "_lastWeekday(Fri,Nov)":"book-club-meeting"
+    "lastWeekday(Fri,Jan)":"book-club-meeting",
+    "lastWeekday(Fri,Mar)":"book-club-meeting",
+    "lastWeekday(Fri,May)":"book-club-meeting",
+    "lastWeekday(Fri,Jul)":"book-club-meeting",
+    "lastWeekday(Fri,Sep)":"book-club-meeting",
+    "lastWeekday(Fri,Nov)":"book-club-meeting"
   }
 })
 ```
@@ -443,9 +443,11 @@ body[data-occasion="star-wars"] .logo {
 
 ## Date format
 
-Names of months and weekdays must be their first three letters, title cased. Eg: `Jan`, `Feb`, `Mon` and `Tue`.
+Names of months and weekdays must be their first three letters. Eg: `Jan`, `Feb`, `Mon` and `Tue`.
 
-Days must be two digits, so some need leading zeroes. Eg: `08`, `09`, `10`, `11`, etc.
+Everything is case-insensitive: months, weekdays and special-date function names. Eg: `sep 25` and `Sep 25` are equivalent, as are `lastweekday(fri,sep)` and `lastWeekday(Fri,Sep)`.
+
+Days may be written with or without a leading zero. Eg: `May 4` and `May 04` are equivalent.
 
 # Migrating from 2.x
 
@@ -504,6 +506,7 @@ The options are the same, with these differences:
 * Custom occasions: spread them after the presets, e.g. `{ occasions: { ...presets, "Feb 27":"birthday" } }`.
 * Classes are prefixed with `occasion-`. Update your CSS or pass `prefix: ""` to keep the old class names.
 * `onOccasion` now receives the occasion name as its argument.
+* Special date functions no longer take a leading underscore: `"_nthDay(1,Mon,Feb)"` is now `"nthDay(1,Mon,Feb)"`.
 
 # Development
 

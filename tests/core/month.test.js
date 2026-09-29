@@ -14,6 +14,8 @@ test("month index", () => {
   expect(core.monthIndex("Oct")).toEqual(9);
   expect(core.monthIndex("Nov")).toEqual(10);
   expect(core.monthIndex("Dec")).toEqual(11);
+  expect(core.monthIndex("sep")).toEqual(8);
+  expect(core.monthIndex("SEP")).toEqual(8);
 })
 
 test("month name", () => {

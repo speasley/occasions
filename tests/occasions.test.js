@@ -7,9 +7,12 @@ import occasionsData from "../src/occasions.json";
 const fakeElement = () => ({ classList: { add: vi.fn() }, dataset: {} });
 
 test("getOccasion", () => {
-  expect(getOccasion({ occasions: presets, date: "May 04" })).toEqual("star-wars");
-  expect(getOccasion({ occasions: presets, date: "Sep 25" })).toEqual("dolly-day");
+  expect(getOccasion({ occasions: presets, date: "May 4" })).toEqual("star-wars");
+  expect(getOccasion({ occasions: presets, date: "sep 25" })).toEqual("dolly-day");
   expect(getOccasion({ date: "Feb 27", occasions: { "Feb 27": "birthday" } })).toEqual("birthday");
+  expect(getOccasion({ date: "Feb 27", occasions: { "feb 27": "birthday" } })).toEqual("birthday");
+  expect(getOccasion({ date: "May 26", occasions: { "lastweekday(fri,may,2023)": "book-club" } })).toEqual("book-club");
+  expect(getOccasion({ date: "May 26", occasions: { "lastWeekday(Fri,May,2023)": "book-club" } })).toEqual("book-club");
   expect(getOccasion({ occasions: presets, date: "Feb 29" })).toBeUndefined();
 })
 

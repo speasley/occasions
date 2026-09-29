@@ -9,6 +9,8 @@ test("weekday index", () => {
   expect(core.weekdayIndex("Thu")).toEqual(4);
   expect(core.weekdayIndex("Fri")).toEqual(5);
   expect(core.weekdayIndex("Sat")).toEqual(6);
+  expect(core.weekdayIndex("fri")).toEqual(5);
+  expect(core.weekdayIndex("FRI")).toEqual(5);
 })
 
 test("weekday name", () => {

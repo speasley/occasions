@@ -31,7 +31,7 @@ const lastWeekday = (parameters) => {
   const timestampLastDayOfMonth = timestamp(month_index + 1, 0, year);
   date = new Date((timestampLastDayOfMonth - oneDay * offset) * 1000);
   const day = date.getDate(); // last weekday of a month is always the 22nd or later, so never needs padding
-  date = `${month} ${day}`;
+  date = `${monthName(month_index)} ${day}`;
 
   return date;
 
@@ -101,7 +101,7 @@ return `${formattedMonth} ${formattedDay}`;
 
 const weekdayIndex = (d) => {
   const weekdayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  return weekdayNames.indexOf(d);
+  return weekdayNames.map(name => name.toLowerCase()).indexOf(`${d}`.toLowerCase());
 };
 
 const weekdayName = (d) => {
