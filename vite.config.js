@@ -33,6 +33,8 @@ export default defineConfig(({ mode }) => ({
   test: {
     coverage: {
       provider: 'istanbul',
+      all: true,
+      include: ['src/**'],
       reporter: ['text', 'json', 'html']
     }
   }

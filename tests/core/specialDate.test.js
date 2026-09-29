@@ -36,3 +36,22 @@ test("lastWeekday", () => {
   expect(core.specialDate("_lastWeekday(Fri,Aug,1979)")).toEqual("Aug 31");
   expect(core.specialDate("_lastWeekday(Sun,Dec,2000)")).toEqual("Dec 31");
 })
+
+test("lastWeekday", () => {
+  expect(core.specialDate("_lastWeekday(Mon,May,2023)")).toEqual("May 29");
+  expect(core.specialDate("_lastWeekday(Fri,May,2023)")).toEqual("May 26");
+  expect(core.specialDate("_lastWeekday(Wed,May,2023)")).toEqual("May 31");
+  expect(core.specialDate("_lastWeekday(Sat,Feb,2024)")).toEqual("Feb 24");
+})
+
+test("special dates default to the current year", () => {
+  const year = new Date().getFullYear();
+  expect(core.specialDate("_lastWeekday(Fri,Nov)")).toEqual(core.specialDate(`_lastWeekday(Fri,Nov,${year})`));
+  expect(core.specialDate("_weekdayAfter(Tue,Jun,14)")).toEqual(core.specialDate(`_weekdayAfter(Tue,Jun,14,${year})`));
+  expect(core.specialDate("_weekdayBefore(Tue,Feb,27)")).toEqual(core.specialDate(`_weekdayBefore(Tue,Feb,27,${year})`));
+  expect(core.specialDate("_nthDay(1,Mon,Feb)")).toEqual(core.specialDate(`_nthDay(1,Mon,Feb,${year})`));
+})
+
+test("unknown special date", () => {
+  expect(core.specialDate("_unknown(Mon,Feb)")).toBeUndefined();
+})

@@ -9,3 +9,10 @@ test("renameKey", () => {
     "after":"foo"
   });
 })
+
+test("renameKey with the same key", () => {
+  const hash = {
+    "same":"foo"
+  }
+  expect(core.renameKey(hash, "same", "same")).toBe(hash);
+})

@@ -30,7 +30,7 @@ const lastWeekday = (parameters) => {
 
   const timestampLastDayOfMonth = timestamp(month_index + 1, 0, year);
   date = new Date((timestampLastDayOfMonth - oneDay * offset) * 1000);
-  const day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+  const day = date.getDate(); // last weekday of a month is always the 22nd or later, so never needs padding
   date = `${month} ${day}`;
 
   return date;
